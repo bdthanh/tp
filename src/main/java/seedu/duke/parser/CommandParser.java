@@ -231,8 +231,8 @@ public class CommandParser {
         }
     }
 
-    private static Command createTransactionCommand(String command, String[] parts, UserList userList, ItemList itemList,
-                                                   TransactionList transactionList)
+    private static Command createTransactionCommand(String command, String[] parts, UserList userList,
+                                                    ItemList itemList, TransactionList transactionList)
             throws CommandNotFoundException, InsufficientArgumentsException {
         // assert that command exists
         switch (command) {
