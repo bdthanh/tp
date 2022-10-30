@@ -151,57 +151,118 @@ public class CommandParser {
         if (isContainingDataSeparator(input)) {
             throw new InvalidArgumentException(MESSAGE_CONTAIN_DATA_SEPARATOR);
         }
+        if (isUserRelatedCommand(command)) {
+            return createUserCommand(command, parts, userList, itemList, transactionList);
+        } else if (isItemRelatedCommand(command)) {
+            return createItemCommand(command, parts, userList, itemList, transactionList);
+        } else if (isTxRelatedCommand(command)) {
+            return createTransactionCommand(command, parts, userList, itemList, transactionList);
+        } else if (isOtherCommand(command)) {
+            return createOtherCommand(command);
+        } else {
+            throw new CommandNotFoundException(MESSAGE_COMMAND_UNRECOGNIZABLE);
+        }
+    }
+
+    private static boolean isUserRelatedCommand(String command) {
+        return command.contains("user");
+    }
+
+    private static boolean isItemRelatedCommand(String command) {
+        return command.contains("user") || command.equals(COMMAND_LIST_CATEGORIES);
+    }
+
+    private static boolean isTxRelatedCommand(String command) {
+        return command.contains("tx");
+    }
+
+    private static boolean isOtherCommand(String command) {
+        return command.equals(COMMAND_EXIT) || command.equals(COMMAND_HELP);
+    }
+
+    private static Command createUserCommand(String command, String[] parts, UserList userList, ItemList itemList,
+                                            TransactionList transactionList)
+            throws CommandNotFoundException, InsufficientArgumentsException {
         // assert that command exists
         switch (command) {
-        case COMMAND_EXIT:
-            return new ExitCommand();
-        case COMMAND_HELP:
-            return new HelpCommand();
         case COMMAND_LIST_USERS:
             return new ListUsersCommand(userList);
-        case COMMAND_LIST_ITEMS:
-            return new ListItemsCommand(itemList, transactionList);
-        case COMMAND_LIST_TX:
-            return new ListTransactionsCommand(transactionList);
         case COMMAND_VIEW_USER:
             return new ViewUserCommand(parts, userList, itemList, transactionList);
-        case COMMAND_VIEW_ITEM:
-            return new ViewItemCommand(parts, itemList, transactionList);
-        case COMMAND_VIEW_TX:
-            return new ViewTransactionCommand(parts, transactionList);
         case COMMAND_ADD_USER:
             return new AddUserCommand(parts, userList);
-        case COMMAND_ADD_ITEM:
-            return new AddItemCommand(parts, userList, itemList, transactionList);
-        case COMMAND_ADD_TX:
-            return new AddTransactionCommand(parts, userList, itemList, transactionList);
         case COMMAND_REMOVE_USER:
             return new RemoveUserCommand(parts, userList, itemList, transactionList);
         case COMMAND_VIEW_USER_DEBT:
             return new ViewUserDebtCommand(parts, userList, transactionList);
         case COMMAND_VIEW_USER_ITEMS:
             return new ViewUserItemsCommand(parts, userList, itemList, transactionList);
+        case COMMAND_FIND_USER:
+            return new FindUserCommand(parts, userList);
+        default:
+            throw new CommandNotFoundException(MESSAGE_COMMAND_UNRECOGNIZABLE);
+        }
+    }
+
+    private static Command createItemCommand(String command, String[] parts, UserList userList, ItemList itemList,
+                                            TransactionList transactionList)
+            throws CommandNotFoundException, InsufficientArgumentsException {
+        switch (command) {
+        case COMMAND_LIST_ITEMS:
+            return new ListItemsCommand(itemList, transactionList);
+        case COMMAND_VIEW_ITEM:
+            return new ViewItemCommand(parts, itemList, transactionList);
+        case COMMAND_ADD_ITEM:
+            return new AddItemCommand(parts, userList, itemList, transactionList);
         case COMMAND_REMOVE_ITEM:
             return new RemoveItemCommand(parts, itemList, transactionList);
-        case COMMAND_REMOVE_TX:
-            return new RemoveTransactionCommand(parts, transactionList);
-        case COMMAND_FIND_TX:
-            return new ViewTransactionsByStatusCommand(parts, transactionList);
-        case COMMAND_FIND_TX_BY_USER:
-            return new ViewTransactionsByUserCommand(parts, transactionList, userList);
         case COMMAND_SORT_ITEMS:
             return new SortItemCommand(parts, itemList, transactionList);
         case COMMAND_LIST_CATEGORIES:
             return new ListCategoriesCommand();
         case COMMAND_FIND_ITEM:
             return new FindItemCommand(parts, itemList, transactionList);
-        case COMMAND_FIND_USER:
-            return new FindUserCommand(parts, userList);
         case COMMAND_UPDATE_ITEM:
             return new UpdateItemCommand(parts, itemList, transactionList);
+        case COMMAND_VIEW_USER_ITEMS:
+            return new ViewUserItemsCommand(parts, userList, itemList, transactionList);
+        default:
+            throw new CommandNotFoundException(MESSAGE_COMMAND_UNRECOGNIZABLE);
+        }
+    }
+
+    private static Command createTransactionCommand(String command, String[] parts, UserList userList, ItemList itemList,
+                                                   TransactionList transactionList)
+            throws CommandNotFoundException, InsufficientArgumentsException {
+        // assert that command exists
+        switch (command) {
+        case COMMAND_LIST_TX:
+            return new ListTransactionsCommand(transactionList);
+        case COMMAND_VIEW_TX:
+            return new ViewTransactionCommand(parts, transactionList);
+        case COMMAND_ADD_TX:
+            return new AddTransactionCommand(parts, userList, itemList, transactionList);
+        case COMMAND_REMOVE_TX:
+            return new RemoveTransactionCommand(parts, transactionList);
+        case COMMAND_FIND_TX:
+            return new ViewTransactionsByStatusCommand(parts, transactionList);
+        case COMMAND_FIND_TX_BY_USER:
+            return new ViewTransactionsByUserCommand(parts, transactionList, userList);
         case COMMAND_UPDATE_TRANSACTION:
             return new UpdateTransactionCommand(parts, transactionList);
+        default:
+            throw new CommandNotFoundException(MESSAGE_COMMAND_UNRECOGNIZABLE);
+        }
+    }
 
+    public static Command createOtherCommand(String command)
+            throws CommandNotFoundException {
+        // assert that command exists
+        switch (command) {
+        case COMMAND_EXIT:
+            return new ExitCommand();
+        case COMMAND_HELP:
+            return new HelpCommand();
         default:
             throw new CommandNotFoundException(MESSAGE_COMMAND_UNRECOGNIZABLE);
         }
